@@ -1,20 +1,20 @@
 package com.redhat.coolstore.catalog.api;
 
 import java.util.List;
+
 import com.redhat.coolstore.catalog.model.Product;
 import com.redhat.coolstore.catalog.verticle.service.CatalogService;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.healthchecks.Status;
-import io.vertx.ext.healthchecks.HealthCheckHandler;
-
-
 
 public class ApiVerticle extends AbstractVerticle {
 
@@ -28,34 +28,31 @@ public class ApiVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
 
         Router router = Router.router(vertx);
-//	OAuth2Handler oauth2 = OAuth2Handler.create (
-//			OAuth2Auth.createKeycloak(vertx, OAuth2FlowType.AUTH_CODE, new JsonObject()),
-//			"https://sso-rhsso.apps.allinone.pkthakur.in/callback"
-//			
-//			);
-//	oauth2.setupCallback(router.get("/callback"))
-
-	router.get("/products").handler(this::getProducts);
+        router.get("/products").handler(this::getProducts);
         router.get("/product/:itemId").handler(this::getProduct);
         router.route("/product").handler(BodyHandler.create());
         router.post("/product").handler(this::addProduct);
 
+
         // Health Checks
+
         // TODO: Add Health Check code here for
         //       - /health/readiness
         //       - /health/liveness
 
+        // Health Checks
         router.get("/health/readiness").handler(rc -> rc.response().end("OK"));
-	HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx)
+
+        HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx)
                 .register("health", f -> health(f));
         router.get("/health/liveness").handler(healthCheckHandler);
-
+        
         // Static content for swagger docs
         router.route().handler(StaticHandler.create());
         
         vertx.createHttpServer()
             .requestHandler(router::accept)
-            .listen(config().getInteger("catalog.http.port", 8090), result -> {
+            .listen(config().getInteger("catalog.http.port", 8080), result -> {
                 if (result.succeeded()) {
                     startFuture.complete();
                 } else {
@@ -111,7 +108,7 @@ public class ApiVerticle extends AbstractVerticle {
             }
         });
     }
-
+    
     private void health(Future<Status> future) {
         catalogService.ping(ar -> {
             if (ar.succeeded()) {
@@ -125,6 +122,6 @@ public class ApiVerticle extends AbstractVerticle {
                 }
             }
         });
-    }
+    }    
 
 }

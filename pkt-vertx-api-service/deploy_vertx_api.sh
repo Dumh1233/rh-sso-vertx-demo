@@ -4,6 +4,9 @@
 # Choose a Project Name to host your applications. 
 export CATALOG_PRJ=coolstore-catalog
 
+# Switch to Catalog Project
+oc project $CATALOG_PRJ
+
 # Add "view" role to service account
 oc adm policy add-role-to-user view system:serviceaccounts:$CATALOG_PRJ -n $CATALOG_PRJ
 

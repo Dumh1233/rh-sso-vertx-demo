@@ -225,6 +225,83 @@ public class ApiVerticleTest {
             .end();
     }
 
+    @Test
+    public void testLivenessHealthCheck(TestContext context) {
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation){
+                Handler<AsyncResult<String>> handler = invocation.getArgument(0);
+                handler.handle(Future.succeededFuture("ok"));
+                return null;
+             }
+        }).when(catalogService).ping(any());
 
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/health/liveness", response -> {
+                assertThat(response.statusCode(), equalTo(200));
+                response.bodyHandler(body -> {
+                    JsonObject json = body.toJsonObject();
+                    assertThat(json.toString(), containsString("\"outcome\":\"UP\""));
+                    async.complete();
+                }).exceptionHandler(context.exceptionHandler());
+            })
+            .exceptionHandler(context.exceptionHandler())
+            .end();
+    }
+
+    @Test
+    public void testFailingLivenessHealthCheck(TestContext context) {
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation){
+                Handler<AsyncResult<Long>> handler = invocation.getArgument(0);
+                handler.handle(Future.failedFuture("error"));
+                return null;
+             }
+         }).when(catalogService).ping(any());
+
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/health/liveness", response -> {
+                assertThat(response.statusCode(), equalTo(503));
+                async.complete();
+            })
+            .exceptionHandler(context.exceptionHandler())
+            .end();
+    }
+
+    @Test
+    public void testLivenessHealthCheckTimeOut(TestContext context) {
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                Handler<AsyncResult<String>> handler = invocation.getArgument(0);
+                // Simulate long operation to force timeout - default timeout = 1000ms
+                vertx.<String>executeBlocking(f -> {
+                    try {
+                        Thread.sleep(1100);
+                    } catch (InterruptedException e) {}
+                    f.complete();
+                }, res -> handler.handle(Future.succeededFuture("OK")));
+                return null;
+            }
+        }).when(catalogService).ping(any());
+
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/health/liveness", response -> {
+                // HealthCheck Timeout returns a 500 status code
+                assertThat(response.statusCode(), equalTo(500));
+                async.complete();
+            })
+            .exceptionHandler(context.exceptionHandler())
+            .end();
+    }
+
+    @Test
+    public void testReadinessHealthCheck(TestContext context) {
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/health/readiness", response -> {
+                assertThat(response.statusCode(), equalTo(200));
+                async.complete();
+            })
+            .exceptionHandler(context.exceptionHandler())
+            .end();
+    }
 
 }
