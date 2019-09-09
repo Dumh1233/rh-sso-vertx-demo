@@ -1,0 +1,8 @@
+{
+  "realm": "base-realm",
+  "auth-server-url": "https://sso-rhsso.apps.allinone.pkthakur.in/auth",
+  "ssl-required": "none",
+  "resource": "webapp",
+  "public-client": true,
+  "confidential-port": 0
+}

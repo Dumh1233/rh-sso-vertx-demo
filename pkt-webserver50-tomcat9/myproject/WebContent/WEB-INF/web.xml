@@ -1,0 +1,28 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        id="myproject" version="3.0">
+        <display-name>myproject</display-name>
+        <welcome-file-list>
+                <welcome-file>index.html</welcome-file>
+        </welcome-file-list>
+        <module-name>myproject</module-name>
+        <security-constraint>
+                <web-resource-collection>
+                        <web-resource-name>myproject</web-resource-name>
+                       <url-pattern>/secure/*</url-pattern> 
+                </web-resource-collection>
+                <auth-constraint>
+                        <role-name>web-user</role-name>
+                </auth-constraint>
+        </security-constraint>   
+
+        <login-config>
+                <auth-method>KEYCLOAK</auth-method>
+                <realm-name>Test</realm-name>
+        </login-config>
+        
+        <security-role>
+        <role-name>web-user</role-name>
+        </security-role>
+</web-app>
