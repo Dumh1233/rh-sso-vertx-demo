@@ -9,6 +9,9 @@ The idea is to demonstrate SSO Integration from Red Hat Single Sign On Server an
 
 The Bookstore application is deployed from a custom container image build using the Dockerfile. 
 
+If you wish to change parameters or such in the Bookstore application (inside myproject folder),
+after the changes you'll need to run ```jar -cvf myproject.war *``` to override the current myproject.war file
+
 Before you build the Dockerfile you'll need to create a crt using the following command:
 
 ```
