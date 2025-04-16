@@ -9,5 +9,12 @@ The idea is to demonstrate SSO Integration from Red Hat Single Sign On Server an
 
 The Bookstore application is deployed from a custom container image build using the Dockerfile. 
 
+Before you build the Dockerfile you'll need to create a crt using the following command:
+
+```
+openssl s_client -connect <Your RHSSO route URL>:443 -showcerts </dev/null | sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' > rhsso.crt
+```
+and place the output file rhsso.crt where the Dockerfile resides
+
 The Coolstore Application is deployed directly from git repo using maven and fabric8 plugin. 
 
